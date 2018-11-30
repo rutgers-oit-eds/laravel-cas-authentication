@@ -1,0 +1,67 @@
+{
+    "name": "rutgers-oit-eds/laravel-cas-authentication",
+    "description": "Laravel package for integrating CAS authentication",
+    "keywords": [
+        "laravel",
+        "cas",
+        "authentication"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nicholas Blew",
+            "email": "nicholas.blew@rutgers.edu"
+        }
+    ],
+    "require": {
+        "php": ">=8.1.0",
+        "apereo/phpcas": "~1.6.2",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
+        "monolog/monolog": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rutgers\\Cas\\": "src/Rutgers/Cas/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rutgers\\Cas\\CasServiceProvider"
+            ],
+            "aliases": {
+                "Cas": "Rutgers\\Cas\\Facades\\Cas"
+            }
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5",
+        "orchestra/testbench": "^9.7|^10.0|^11.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rutgers\\Cas\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "test": [
+            "@clear",
+            "@php vendor/bin/phpunit"
+        ]
+    }
+}
