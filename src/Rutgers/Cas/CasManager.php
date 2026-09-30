@@ -254,7 +254,7 @@ class CasManager {
 		if ( phpCAS::isSessionAuthenticated() ) {
 			if ( isset( $_SESSION['phpCAS'] ) ) {
 				$serialized = serialize( $_SESSION['phpCAS'] );
-				phpCAS::log( 'Logout requested, but no session data found for user:'
+				phpCAS::log( 'Logout requested, session data for user:'
 				             . PHP_EOL . $serialized );
 			}
 		}
@@ -267,8 +267,8 @@ class CasManager {
 		if ( $url ) {
 			$params['url'] = $url;
 		}
+		// phpCAS sends the redirect and terminates the request itself.
 		phpCAS::logout( $params );
-		exit;
 	}
 
 
