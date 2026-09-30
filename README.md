@@ -8,6 +8,13 @@ This package implements phpCAS for Laravel. Unlike other packages, this package 
 * PHP 8.2 or newer
 * Laravel 12 or 13
 
+## Upgrading to 1.0
+
+* PHP 8.2+ and Laravel 12 or 13 are now required.
+* The guard now uses the name configured in `config/auth.php` (for example `web`) instead of a hardcoded `cas`. This changes the session key the guard stores the user in, so users will be sent through CAS once after upgrading. Users with an active CAS SSO session are logged back in without being prompted.
+* Auth events (`Login`, `Authenticated`, `Logout`) now report the configured guard name, and Laravel's `Illuminate\Auth\Events\Login` is now dispatched on login.
+* `APP_DOMAIN` and `HTTPS_ONLY_COOKIES` are now read through config and work with `config:cache`. See [Configuration Notes](#configuration-notes).
+
 ## Installation Instructions
 1) Include the package in your project using composer:
 

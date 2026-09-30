@@ -48,7 +48,3 @@ Match existing code; note `CasManager` uses tabs and WordPress-style spacing (`f
 - Never call `env()` outside `src/config/`; add a config key instead (config may be cached). The package config is merged in `CasServiceProvider::register()`, so new keys get defaults even when an app has an older published `cas.php`.
 - GitHub Actions are pinned to full commit SHAs with a `# vX.Y.Z` comment; Dependabot (`.github/dependabot.yml`) keeps them updated.
 - Dev-only files are excluded from the Composer dist via `.gitattributes` `export-ignore`; add new dev files there.
-
-## Known issues
-
-- `CasServiceProvider` constructs the guard with a hardcoded name `'cas'` rather than the configured guard name, so auth events report guard `cas` and the session key is `login_cas_...`.
