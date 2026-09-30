@@ -12,7 +12,7 @@
   - `CasGuard` — implements `Guard`. `attempt()` → `Cas::authenticate()` → `login($netid)` → `provider->retrieveById()`; throws `CasAuthorizationException` if the CAS user isn't in the app's user table. `user()` returns null unless `Cas::isAuthenticated()`.
   - `CasLoginController` — `GET /login`, `POST /logout` (app logout only), `GET /auth/sso_logout` (CAS logout).
   - `Traits/UsesCasAuthentication` — sets auth identifier name to `cas_username`.
-  - `Events/Login` — package's own login event (Laravel's `Illuminate\Auth\Events\Login` is not fired).
+  - `Events/Login` — package's own login event, dispatched by the controller in addition to Laravel's `Illuminate\Auth\Events\Login` (fired by the guard).
   - `Facades/Cas`, `Exceptions/CasAuthorizationException`.
 - `src/config/` — `cas.php` (env-driven), `auth.php` (sample auth config).
 - `src/routes/cas_routes.php`, `src/views/` (`loggedout`, `casUserNotAuthorized`, namespace `laravel-cas::`).
@@ -42,11 +42,13 @@ composer test            # or: vendor/bin/phpunit
 
 Match existing code; note `CasManager` uses tabs and WordPress-style spacing (`foo( $bar )`) while other files use 4-space PSR style.
 
-## Known issues (not yet fixed)
+## Conventions
 
-- `CasGuard::__construct` uses implicit nullable `Request $request = null` (deprecated in PHP 8.4+).
-- `CasManager` calls `env('APP_DOMAIN')` / `env('HTTPS_ONLY_COOKIES')` at runtime — returns null under `config:cache`.
-- `config/cas.php` reads `config('app.url')` — load-order dependent.
-- `CasManager::logout()` log message is inverted and the method calls `exit`.
-- `fireLoginEvent` / `fireAttemptEvent` are never called; `validate()` returns `null`.
-- composer allows `illuminate/support` ^8+, but dev deps/CI only cover Laravel 11+ (CI: 12–13).
+- Supported: PHP ^8.2, Laravel 12–13. Keep `composer.json` constraints and the CI matrix in sync.
+- Never call `env()` outside `src/config/`; add a config key instead (config may be cached). The package config is merged in `CasServiceProvider::register()`, so new keys get defaults even when an app has an older published `cas.php`.
+- GitHub Actions are pinned to full commit SHAs with a `# vX.Y.Z` comment; Dependabot (`.github/dependabot.yml`) keeps them updated.
+- Dev-only files are excluded from the Composer dist via `.gitattributes` `export-ignore`; add new dev files there.
+
+## Known issues
+
+- `CasServiceProvider` constructs the guard with a hardcoded name `'cas'` rather than the configured guard name, so auth events report guard `cas` and the session key is `login_cas_...`.
