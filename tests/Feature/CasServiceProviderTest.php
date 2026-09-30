@@ -19,6 +19,13 @@ class CasServiceProviderTest extends TestCase
         $this->assertTrue($this->app->bound('cas'));
     }
 
+    public function test_package_config_is_merged_when_not_published(): void
+    {
+        $this->assertSame('CASAuth', config('cas.cas_session_name'));
+        $this->assertArrayHasKey('cas_session_domain', config('cas'));
+        $this->assertArrayHasKey('cas_session_secure', config('cas'));
+    }
+
     public function test_login_route_is_registered(): void
     {
         $this->assertTrue($this->app['router']->has('login'));

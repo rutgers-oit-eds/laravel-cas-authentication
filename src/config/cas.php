@@ -28,6 +28,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CAS Session Cookie Domain
+    |--------------------------------------------------------------------------
+    | Domain for the CAS session cookie. Falls back to the legacy APP_DOMAIN
+    | environment variable. Leave null to use the current host.
+    */
+    'cas_session_domain'  => env('CAS_SESSION_DOMAIN', env('APP_DOMAIN')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | CAS Session Cookie Secure Flag
+    |--------------------------------------------------------------------------
+    | When true, the CAS session cookie is only sent over HTTPS. Falls back
+    | to the legacy HTTPS_ONLY_COOKIES environment variable.
+    */
+    'cas_session_secure'  => env('CAS_SESSION_SECURE', env('HTTPS_ONLY_COOKIES', false)),
+
+    /*
+    |--------------------------------------------------------------------------
     | Laravel has it's own authentication sessions. Unless you want phpCAS
     | to manage the session, leave this set to false.  Note that the
     | middleware and redirect classes will be handling removal
@@ -138,7 +156,7 @@ return [
     |--------------------------------------------------------------------------
     | This is the base service URL required by v1.6.0+ of the phpCAS library.
     */
-    'cas_base_service_url'   => config('app.url'),
+    'cas_base_service_url'   => env('CAS_BASE_SERVICE_URL', env('APP_URL', 'http://localhost')),
 
     /*
     |--------------------------------------------------------------------------

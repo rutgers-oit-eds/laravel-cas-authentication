@@ -51,8 +51,8 @@ class CasManager {
 			// Harden session cookie to prevent some attacks on the cookie (e.g. XSS)
 			session_set_cookie_params( $this->config['cas_session_lifetime'],
 				$this->config['cas_session_path'],
-				env( 'APP_DOMAIN' ),
-				env( 'HTTPS_ONLY_COOKIES' ),
+				$this->config['cas_session_domain'],
+				(bool) $this->config['cas_session_secure'],
 				$this->config['cas_session_httponly'] );
 		}
 
@@ -128,6 +128,8 @@ class CasManager {
 			'cas_session_name'     => 'CASAuth',
 			'cas_session_lifetime' => 7200,
 			'cas_session_path'     => '/',
+			'cas_session_domain'   => null,
+			'cas_session_secure'   => false,
 			'cas_control_session'  => false,
 			'cas_session_httponly' => true,
 			'cas_port'             => 443,

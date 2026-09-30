@@ -74,6 +74,8 @@ class CasManagerTest extends TestCase
         $this->assertTrue($config['cas_enable_saml']);
         $this->assertTrue($config['cas_validate_cn']);
         $this->assertTrue($config['cas_session_httponly']);
+        $this->assertFalse($config['cas_session_secure']);
+        $this->assertNull($config['cas_session_domain']);
     }
 
     public function test_provided_values_override_defaults(): void
