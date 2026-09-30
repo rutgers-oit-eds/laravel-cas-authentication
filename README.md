@@ -3,6 +3,11 @@
 ## Overview
 This package implements phpCAS for Laravel. Unlike other packages, this package implements a custom Laravel auth guard. This allows the developer to leverage the existing Laravel authentication system, while relying on CAS for the actual authentication process.
 
+## Requirements
+
+* PHP 8.2 or newer
+* Laravel 12 or 13
+
 ## Installation Instructions
 1) Include the package in your project using composer:
 
@@ -58,6 +63,31 @@ This package publishes 3 routes for handling authentication flow.
 
 * `/login`: Triggers the CAS authentication guard's `attempt()` method, which redirects a user out to CAS for authentication. Once the user is redirected back to the application, the authentication guard's `login()` method handles setting the user's session tokens and returning the user to the URL defined in the CAS configuration under `cas_redirect_path`.
 
-* `/logout`: Triggers the application's logout routines, destroying the application session and logging the user out. This does **NOT** log the user out of CAS, per the CAS protocol. The user will be directed to the logged out page, which has a link to the CAS logout if the user wishes to fully log out of SSO. The logged out view is customizable, see step 2 of the [installation instructions](#installation-instructions).
+* `/logout` (**POST**): Triggers the application's logout routines, destroying the application session and logging the user out. This does **NOT** log the user out of CAS, per the CAS protocol. The user will be directed to the logged out page, which has a link to the CAS logout if the user wishes to fully log out of SSO. The logged out view is customizable, see step 2 of the [installation instructions](#installation-instructions).
+
+    Because this is a POST route protected by CSRF, trigger it from a form rather than a link:
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit">Log out</button>
+        </form>
 
 * `/auth/sso_logout`: Triggers the CAS logout routines, directing the user to CAS where they are fully logged out of SSO. By defining the CAS service URL or the CAS logout redirect URL in the configuration, you can control where the user goes after logging out of CAS.
+
+The `/login` and `/logout` routes are registered with the names `login` and `logout`. Laravel's `auth` middleware redirects unauthenticated users to the route named `login`, which is how users get sent to CAS. If your application defines its own routes with these names, they will conflict with the package routes.
+
+## Events
+
+On a successful login the guard dispatches Laravel's standard `Illuminate\Auth\Events\Login` event, so existing Laravel auth listeners work as usual. The package also dispatches its own `Rutgers\Cas\Events\Login` event, which carries the authenticated user.
+
+## Configuration Notes
+
+All settings are read from `config/cas.php`, so they work with `php artisan config:cache`. The CAS session cookie can be configured with these environment variables:
+
+| Variable | Description | Default |
+|---|---|---|
+| `CAS_SESSION_DOMAIN` | Domain for the CAS session cookie | `APP_DOMAIN`, or the current host |
+| `CAS_SESSION_SECURE` | Only send the CAS session cookie over HTTPS | `HTTPS_ONLY_COOKIES`, or `false` |
+| `CAS_BASE_SERVICE_URL` | Base service URL passed to phpCAS | `APP_URL` |
+
+The legacy `APP_DOMAIN` and `HTTPS_ONLY_COOKIES` variables are still honored as fallbacks.
