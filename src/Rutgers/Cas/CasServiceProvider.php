@@ -58,7 +58,7 @@ class CasServiceProvider extends ServiceProvider
 
         Auth::extend('cas', function($app, $name, array $config) {
             
-            $guard = new CasGuard('cas', Auth::createUserProvider($config['provider']), app('session.store'));
+            $guard = new CasGuard($name, Auth::createUserProvider($config['provider']), app('session.store'));
 
             if (method_exists($guard, 'setDispatcher')) {
                 $guard->setDispatcher($this->app['events']);
