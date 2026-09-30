@@ -2,6 +2,7 @@
 
 namespace Rutgers\Cas\Tests\Feature;
 
+use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -170,6 +171,28 @@ class CasGuardTest extends TestCase
         $this->assertSame($user, $guard->user());
     }
 
+    public function test_login_fires_laravel_login_event(): void
+    {
+        $user = $this->makeUser('jdoe');
+        $this->provider->method('retrieveById')->willReturn($user);
+
+        $dispatcher = $this->createMock(Dispatcher::class);
+        $dispatched = [];
+        $dispatcher->method('dispatch')->willReturnCallback(function ($event) use (&$dispatched) {
+            $dispatched[] = $event;
+            return null;
+        });
+
+        $guard = $this->makeGuard();
+        $guard->setDispatcher($dispatcher);
+        $guard->login('jdoe');
+
+        $logins = array_values(array_filter($dispatched, fn ($e) => $e instanceof Login));
+        $this->assertCount(1, $logins);
+        $this->assertSame($user, $logins[0]->user);
+        $this->assertFalse($logins[0]->remember);
+    }
+
     public function test_login_throws_when_user_not_found_in_provider(): void
     {
         $this->provider->method('retrieveById')->willReturn(null);
@@ -271,6 +294,11 @@ class CasGuardTest extends TestCase
         $this->provider->method('retrieveById')->willReturn(null);
 
         $this->assertFalse($this->makeGuard()->onceUsingId('unknown'));
+    }
+
+    public function test_validate_always_returns_false(): void
+    {
+        $this->assertFalse($this->makeGuard()->validate(['cas_username' => 'jdoe']));
     }
 
     // -------------------------------------------------------------------------

@@ -85,7 +85,7 @@ class CasGuard implements Guard
      * @param  \Symfony\Component\HttpFoundation\Request|null  $request
      * @return void
      */
-    public function __construct($name, UserProvider $provider, Session $session, Request $request = null)
+    public function __construct($name, UserProvider $provider, Session $session, ?Request $request = null)
     {
         $this->name = $name;
         $this->provider = $provider;
@@ -183,6 +183,8 @@ class CasGuard implements Guard
         //update session with user identifier
         $this->updateSession($user->getAuthIdentifier());
 
+        $this->fireLoginEvent($user);
+
         //set authenticated user
         $this->setUser($user);
     }
@@ -207,12 +209,15 @@ class CasGuard implements Guard
     /**
      * Validate a user's credentials.
      *
+     * Credentials are validated by the CAS server, not the application,
+     * so this always returns false.
+     *
      * @param  array $credentials
      * @return bool
      */
     public function validate(array $credentials = [])
     {
-        return null;
+        return false;
     }
 
     /**
